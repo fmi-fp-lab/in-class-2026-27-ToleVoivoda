@@ -114,9 +114,9 @@ infixr 0 $
 
 -- (1 + 2) $ (3 * 4) $
 
-(.) :: (b -> c) -> (a -> b) -> a -> c
-(.) f g a = f $ g a
-infixr 6 .
+-- (.) :: (b -> c) -> (a -> b) -> a -> c
+-- (.) f g a = f $ g a
+-- infixr 6 .
 
 -- >>> g $ l (j (w (g (g (f x)))))
 -- >>> print $ g (l (j (w (g (g
@@ -169,7 +169,7 @@ sndTuple (MkTuple _ b) = b
 -- 42
 
 const :: a -> b -> a
-const = undefined
+const x _ = x
 
 -- TASK:
 -- Compose two functions, very useful very often
@@ -214,7 +214,8 @@ compose f g x = f (g x)
 -- 1024
 
 iterateN :: (a -> a) -> a -> Integer -> a
-iterateN = undefined
+iterateN _ x 0 = x
+iterateN f x n = iterateN f (f x) (n - 1)
 
 -- TASK:
 -- Swap the two elements of a tuple
@@ -223,7 +224,7 @@ iterateN = undefined
 -- MkTuple 69 42
 
 swap :: Tuple a b -> Tuple b a
-swap = undefined
+swap (MkTuple a b) = (MkTuple b a)
 
 -- TASK:
 -- Apply a function to only the first component of a tuple
@@ -232,7 +233,7 @@ swap = undefined
 -- MkTuple 42 1337
 
 first :: (a -> b) -> Tuple a c -> Tuple b c
-first = undefined
+first f (MkTuple a b) = MkTuple (f a) b 
 
 -- TASK:
 -- Convert a function operating on a tuple, to one that takes two arguments.
@@ -243,7 +244,7 @@ first = undefined
 -- 69
 
 curry :: (Tuple a b -> c) -> a -> b -> c
-curry = undefined
+curry f x y = f (MkTuple x y)
 
 -- TASK:
 -- Convert a two argument function, to one that takes a Tuple.
@@ -252,7 +253,7 @@ curry = undefined
 -- 69
 
 uncurry :: (a -> b -> c) -> Tuple a b -> c
-uncurry = undefined
+uncurry f (MkTuple x y) = f x y
 
 -- TASK:
 -- > p `on` f
@@ -264,7 +265,8 @@ uncurry = undefined
 -- 59
 
 on :: (b -> b -> c) -> (a -> b) -> a -> a -> c
-on = join . ((flip . ((.) .)) .) . (.)
+-- on = join . ((flip . ((.) .)) .) . (.)
+on g f x y = g (f x) (f y)
 
 -- TASK:
 -- Execute a function, until the result starts sastifying a given predicate
@@ -273,8 +275,8 @@ on = join . ((flip . ((.) .)) .) . (.)
 -- 1372
 
 until :: (a -> Bool) -> (a -> a) -> a -> a
--- until p f x = if p x then x else until p f (f x)
-until = fix (ap ((.) . ap . (if' =<<)) . flip flip id . (liftM2 (.) .))
+-- until = fix (ap ((.) . ap . (if' =<<)) . flip flip id . (liftM2 (.) .))
+until f g x = if (f x) then x else until f g $ g x
 
 if' :: Bool -> a -> a -> a
 if' p x y = if p then x else y
@@ -283,8 +285,8 @@ if' p x y = if p then x else y
 -- Apply two different functions to the two different arguments of a tuple
 -- Think about what the type should be.
 
--- mapTuple :: ???
--- mapTuple = undefined
+mapTuple :: (a -> b) -> (c -> d) -> (Tuple a c) -> (Tuple b d)
+mapTuple f g (MkTuple x y) = MkTuple (f x) (g y)
 
 data Nat
     = Zero
@@ -307,8 +309,9 @@ data Nat
 -- Can you implement a general enough higher-order function (called `foldNat` here), such that you can then use to
 -- implement both of `addNat` and `multNat` by passing suitable arguments? What are those arguments?
 --
--- foldNat :: ???
--- foldNat = ???
+-- foldNat :: (Nat -> Nat -> Nat) ??????????????
+-- foldNat Zero m = 
+-- foldNat (Succ n) m = 
 
 -- TASK:
 -- If your function is "good enough" you should also be able to implement exponentiation using it.
