@@ -309,21 +309,40 @@ data Nat
 -- Can you implement a general enough higher-order function (called `foldNat` here), such that you can then use to
 -- implement both of `addNat` and `multNat` by passing suitable arguments? What are those arguments?
 --
--- foldNat :: (Nat -> Nat -> Nat) ??????????????
--- foldNat Zero m = 
--- foldNat (Succ n) m = 
+--        
+foldNat :: (Nat -> Nat) -> (Nat -> Nat -> Nat) -> Nat -> Nat -> Nat
+foldNat cond _ Zero m = cond m
+foldNat _ next (Succ n) m = next n m
+
+-- >>> newAddNat (Succ (Succ Zero)) (Succ (Succ (Succ (Succ Zero))))
+-- Succ (Succ (Succ (Succ (Succ (Succ Zero)))))
+newAddNat :: Nat -> Nat -> Nat
+newAddNat = foldNat (\m -> m) (\n m -> Succ (newAddNat n m))
+
+-- >>> newMultNat (Succ (Succ (Succ Zero))) (Succ (Succ (Succ (Succ Zero))))
+-- Succ (Succ (Succ (Succ (Succ (Succ (Succ (Succ (Succ (Succ (Succ (Succ Zero)))))))))))
+newMultNat :: Nat -> Nat -> Nat
+newMultNat = foldNat (\ _ -> Zero) (\n m -> newAddNat m (newMultNat n m))
 
 -- TASK:
 -- If your function is "good enough" you should also be able to implement exponentiation using it.
 
--- expNat :: Nat -> Nat -> Nat
--- expNat = undefined
+-- >>> newExpNat (Succ (Succ Zero)) (Succ (Succ (Succ (Succ Zero))))
+-- Succ (Succ (Succ (Succ (Succ (Succ (Succ (Succ (Succ (Succ (Succ (Succ (Succ (Succ (Succ (Succ Zero)))))))))))))))
+newExpNat :: Nat -> Nat -> Nat
+newExpNat = foldNat (\ _ -> Succ Zero) (\n m -> newMultNat m (newExpNat n m))
 
 -- TASK:
 -- Can you also implement the following function using your foldNat? If not, (try to) modify your function so you can.
 
--- natToInteger :: Nat -> Integer
--- natToInteger = undefined
+foldOneNat :: (Nat -> Integer) -> Nat -> Integer
+foldOneNat _ Zero = 0
+foldOneNat next (Succ n) = next n
+
+-- >>> natToInteger (Succ (Succ (Succ (Succ (Succ Zero)))))
+-- 5
+natToInteger :: Nat -> Integer
+natToInteger = foldOneNat (\n -> 1 + natToInteger n)
 
 -- TASK:
 -- Can you also implement the following "predecessor" function using it? Yes/No, and why?
@@ -334,3 +353,6 @@ data Nat
 
 -- predNat :: Nat -> Nat
 -- predNat = undefined
+
+
+-- Не съм сигурен дали съм разбрал условието с foldNat функцията :3
