@@ -191,20 +191,6 @@ compose f g x = f (g x)
 (.) :: (b -> c) -> (a -> b) -> a -> c
 (.) = compose
 
--- >>> let f = (*5) . (+5) in f 4
--- 45
-
--- Wild UTF8 operator names
-(∘) :: (b -> c) -> (a -> b) -> a -> c
-(∘) = (.)
-
--- Correct only for 1/4th, kek
-(√) :: Integer -> Integer
-(√) x = x * 2
-
--- >>> ((*2) ∘ (+1)) 3
--- 8
-
 -- TASK:
 -- Iterate a function f n times over a base value x.
 
