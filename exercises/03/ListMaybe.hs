@@ -241,6 +241,10 @@ unwraped :: Maybe a -> a
 unwraped (Just x) = x
 unwraped Nothing = error "womp womp"
 
+-- append :: [a] -> [a] -> [a]
+-- append [] ys = ys
+-- append (x:xs) ys = x : append xs ys
+
 append :: [a] -> [a] -> [a]
 append [] ys = ys
 append xs ys = append (take len xs) ((unwraped (ix len xs)) : ys) 

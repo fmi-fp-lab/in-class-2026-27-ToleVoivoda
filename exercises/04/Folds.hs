@@ -114,17 +114,24 @@ integerToNat n =
 -- >>> natToInteger $ Succ $ Succ $ Succ Zero
 -- 3
 
+integerToNat :: Integer -> Nat
+integerToNat 0 = Zero
+integerToNat x = Succ $ integerToNat (x-1)
+
+
 natToInteger :: Nat -> Integer
 natToInteger = foldNat 0 (+ 1)
 
 -- TASK:
 -- Implement exponentiation(n ^ m) using foldNat.
 
--- >>> natToInteger $ expNat (integerToNat 2) (integerToNat 10)
--- 1024
+-- >>> natToInteger $ expNat (integerToNat 2) (integerToNat 0)
+-- 1
+-- >>> natToInteger $ expNat (integerToNat 3) (integerToNat 8)
+-- 6561
 
 expNat :: Nat -> Nat -> Nat
-expNat = undefined
+expNat x n = foldNat (Succ Zero) (multNat x) n
 
 ---------------
 -- EXERCISES --
@@ -133,35 +140,35 @@ expNat = undefined
 -- TASK:
 -- Implement and using foldr
 
--- >>> and [False]
--- False
--- >>> and [True, True]
+-- >>> and [True]
 -- True
+-- >>> and [True, False, True]
+-- False
 
 and :: [Bool] -> Bool
-and = undefined
+and = foldr True (&&)
 
 -- TASK:
 -- Implement or using foldr
 
--- >>> or [False]
--- False
--- >>> or [True, True]
+-- >>> or [False, True]
 -- True
+-- >>> or [False, False, False]
+-- False
 
 or :: [Bool] -> Bool
-or = undefined
+or = foldr False (||)
 
 -- TASK:
 -- Implement length using foldr
 
--- >>> length [1,2,8]
--- 3
--- >>> length []
--- 0
+-- >>> length [1,2,4,8,16]
+-- 5
+-- >>> length [4,5]
+-- 2
 
 length :: [a] -> Integer
-length = undefined
+length = foldr 0 (\_ b -> b+1)
 
 -- TASK:
 -- Implement (++) using foldr
@@ -177,37 +184,40 @@ length = undefined
 
 -- >>> concat [[1,2,3], [42,69], [5,7,8,9]]
 -- [1,2,3,42,69,5,7,8,9]
--- >>> concat [[1,2,3], [], [5,7,8,9]]
--- [1,2,3,5,7,8,9]
--- >>> concat []
--- []
+-- >>> concat [[1,2,3], [], [74835634], [5,7,8,9]]
+-- [1,2,3,74835634,5,7,8,9]
+-- >>> concat [['_'],['c']]
+-- "_c"
 
 concat :: [[a]] -> [a]
-concat = undefined
+concat = foldr [] (++)
 
 -- TASK:
 -- Implement reverse using foldr (it's fine to do this in `O(n^2)`)
 
--- >>> reverse [1,2,3]
--- [3,2,1]
+-- >>> reverse [1,2,7,4]
+-- [4,7,2,1]
 -- >>> reverse []
 -- []
 
 reverse :: [a] -> [a]
-reverse = undefined
+reverse [] = []
+reverse (x:xs) = (reverse xs) ++ [x]
+
+-- reverse = 
 
 -- TASK:
 -- Implement map using foldr
 
--- >>> map succ [1,2,3]
--- [2,3,4]
--- >>> map (\x -> x * x) [1,2,3] -- same as squareList
--- [1,4,9]
--- >>> map (\x -> (3,x)) [1,2,3] -- same as megaPair 3
--- [(3,1),(3,2),(3,3)]
+-- >>> map succ [1,2]
+-- [2,3]
+-- >>> map (\x -> x * x * x) [1,2,3] -- same as squareList
+-- [1,8,27]
+-- >>> map (\x -> (5,x)) [1,2,3] -- same as megaPair 5
+-- [(5,1),(5,2),(5,3)]
 
 map :: (a -> b) -> [a] -> [b]
-map = undefined
+map f = foldr [] (\val list -> f val : list)
 
 -- TASK:
 -- Implement filter using foldr
@@ -216,47 +226,50 @@ map = undefined
 -- True
 -- >>> even 3
 -- False
--- >>> filter even [1..10]
--- [2,4,6,8,10]
+-- >>> filter even [1..100]
+-- [2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,94,96,98,100]
 -- >>> filter isPrime [1..20]
 -- [2,3,5,7,11,13,17,19]
 
 filter :: (a -> Bool) -> [a] -> [a]
-filter = undefined
+filter f = foldr [] (\val list -> if f val then val : list else list)
 
 -- TASK:
 -- Implement null using foldr
 
+-- >>> null [' ']
+-- False
 -- >>> null []
 -- True
--- >>> null [1]
--- False
 
 null :: [a] -> Bool
-null = undefined
+null = foldr True (\_ _ -> False)
 
 -- TASK:
 -- Implement headMaybe using foldr
 
 -- >>> headMaybe []
 -- Nothing
--- >>> headMaybe [1,2,3]
--- Just 1
+-- >>> headMaybe [4,2,3]
+-- Just 4
 
-headMaybe :: [a] -> Maybe a
-headMaybe = undefined
+headMaybe :: Eq a => [a] -> Maybe a
+headMaybe = foldr Nothing (\val _ -> Just val)
 
 -- TASK:
 -- Implement a function that splits a list into two based on a predicate p
 -- those that satisfy p and those that don't.
 
--- >>> partition (<5) [1..10]
--- ([1,2,3,4],[5,6,7,8,9,10])
--- >>> partition even [1..10]
--- ([2,4,6,8,10],[1,3,5,7,9])
+-- >>> partition (<7) [1..20]
+-- ([1,2,3,4,5,6],[7,8,9,10,11,12,13,14,15,16,17,18,19,20])
+-- >>> partition odd [3..10]
+-- ([3,5,7,9],[4,6,8,10])
 
 partition :: (a -> Bool) -> [a] -> ([a], [a])
-partition = undefined
+partition _ [] = ([],[])
+partition f (x:xs) = if f x then (x:a,b) else (a,x:b)
+  where
+    (a,b) = partition f xs
 
 -- TASK:
 -- Implement partition using foldr
@@ -267,7 +280,7 @@ partition = undefined
 -- ([2,4,6,8,10],[1,3,5,7,9])
 
 partitionfoldr :: (a -> Bool) -> [a] -> ([a], [a])
-partitionfoldr = undefined
+partitionfoldr f = foldr ([],[]) (\val (xs,ys) -> if f val then (val:xs,ys) else (xs,val:ys))
 
 -- TASK:
 -- Implement validateList using foldr.
@@ -290,21 +303,21 @@ validateList = undefined
 -- Look at the recursor for nats - foldNat. In there we replaced {Nat}'s constructors with "things".
 -- Think about how a fold for tuples should look like, and implement it.
 -- Does this function remind you of another function we've previously implemented?
--- foldTuple :: ?
--- foldTuple = undefined
+foldTuple :: ?
+foldTuple = undefined
 
 -- TASK:
 -- Same as above, but this time for Maybe
--- foldMaybe :: ?
--- foldMaybe = undefined
+foldMaybe :: ?
+foldMaybe = undefined
 
 -- TASK:
 -- Same as above, but this time for Either
 -- Reminder: Either is defined like so:
 -- data Either a b = Left a | Right b
 --
--- foldEither :: ?
--- foldEither = undefined
+foldEither :: ?
+foldEither = undefined
 
 -- TASK:
 -- If Nats can be converted to "n times applications" via foldNat,
